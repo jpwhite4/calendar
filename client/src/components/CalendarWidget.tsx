@@ -146,7 +146,7 @@ export default function CalendarWidget() {
                       {event.summary}
                     </Typography>
                     <Typography gutterBottom variant="h6" component="div">
-                      {event.start.toLocaleTimeString()}
+                      {event.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric'})}
                     </Typography>
                   </Stack>
                   <Typography variant="body1" sx={{ color: 'text.secondary' }}>
@@ -175,7 +175,7 @@ export default function CalendarWidget() {
                       {event.summary}
                     </Typography>
                     <Typography gutterBottom variant="h6" component="div">
-                      {event.start.toLocaleTimeString()}
+                      {event.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric'})}
                     </Typography>
                   </Stack>
                   <Typography variant="body1" sx={{ color: 'text.secondary' }}>
