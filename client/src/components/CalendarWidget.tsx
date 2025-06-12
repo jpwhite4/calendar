@@ -1,4 +1,4 @@
-// GoogleCalendarWidget.tsx
+// CalendarWidget.tsx
 import React, { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
@@ -15,7 +15,7 @@ interface EventItem {
   start: Date;
 }
 
-export default function GoogleCalendarWidget() {
+export default function CalendarWidget() {
   const theme = useTheme();
   const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
@@ -40,8 +40,6 @@ export default function GoogleCalendarWidget() {
       }
 
       const json = await response.json();
-      console.log(json);
-      console.log(start.toLocaleDateString());
       let pt: EventItem[] = [];
       let ptom: EventItem[] = [];
 

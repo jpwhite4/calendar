@@ -2,6 +2,7 @@
 import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
+import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { LineChart } from '@mui/x-charts';
 import { useTheme } from '@mui/material/styles';
@@ -80,14 +81,11 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
       }
     }
 
-    console.log('in useEffect ignore = ', ignore);
-
     if (!ignore) {
       fetchWeather();
     }
 
     const interval = setInterval(() => {
-      console.log('Interval triggered, fetching weather data again', new Date().toISOString() );
       fetchWeather();
     }, 30 * 60 * 1000);
 
@@ -100,11 +98,12 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
   if (loading) return <div>Loading weather…</div>;
   if (error) return <div>Error: {error}</div>;
   return (
+    <Stack spacing={2} sx={{ width: '100%' }}>
     <Card variant="outlined" sx={{ height: '100%' }}>
       <CardContent>
         <Typography
           component="h2"
-          variant="subtitle2"
+          variant="h6"
           gutterBottom
           sx={{ fontWeight: '600' }}
         >
@@ -113,6 +112,10 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
         <Typography sx={{ color: 'text.secondary', mb: '8px' }}>
           {forecast}
         </Typography>
+      </CardContent>
+      </Card>
+    <Card variant="outlined" sx={{ height: '100%' }}>
+      <CardContent>
         <LineChart
           colors={colorPalette}
           series={[
@@ -148,6 +151,10 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           <AreaGradient color={theme.palette.primary.main} id="referral" />
           <AreaGradient color={theme.palette.primary.light} id="direct" />
         </LineChart>
+	</CardContent>
+	</Card>
+    <Card variant="outlined" sx={{ height: '100%' }}>
+	<CardContent>
         <LineChart
           colors={colorPalette}
           series={[
@@ -179,5 +186,6 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
         </LineChart>
       </CardContent>
     </Card>
+    </Stack>
   );
 }
