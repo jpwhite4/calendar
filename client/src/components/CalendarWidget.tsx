@@ -90,7 +90,7 @@ export default function GoogleCalendarWidget() {
         }
       })
 
-      const options = {
+      const options: Intl.DateTimeFormatOptions = {
         weekday: "short",
         month: "long",
         day: "numeric",
