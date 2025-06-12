@@ -1,7 +1,6 @@
 // GoogleCalendarWidget.tsx
 import React, { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
@@ -54,7 +53,7 @@ export default function GoogleCalendarWidget() {
         let attending = false;
 
         if (item.attendees) {
-          item.attendees.map((attendee) => {
+          item.attendees.map((attendee: { self: boolean; responseStatus: string; }) => {
             if (attendee.self === true) {
               attending = attendee.responseStatus == 'accepted';
             }
@@ -69,7 +68,7 @@ export default function GoogleCalendarWidget() {
         }
 
         if (attending) {
-          if (start - istart == 0) {
+          if (start.getTime() - istart.getTime() === 0) {
 
             pt.push({
               id: item.id,
@@ -92,23 +91,22 @@ export default function GoogleCalendarWidget() {
       })
 
       const options = {
-  weekday: "short",
-  month: "long",
-  day: "numeric",
-};
+        weekday: "short",
+        month: "long",
+        day: "numeric",
+      };
       setDisplayDate(start.toLocaleDateString('en-US', options));
 
       setToday(pt);
       setTomorrow(ptom);
     } catch (err: any) {
-      console.error('Error fetching events:', err); 
       setError(err.details || err.message || 'An error occurred while fetching events');
     }
   }
 
   useEffect(() => {
     fetchEvents();
-    const interval = setInterval(fetchEvents, 60000); // Refresh every minute
+    const interval = setInterval(fetchEvents, 30 * 60 * 1000); // Refresh every half hour
     return () => clearInterval(interval);
   }, []);
 
