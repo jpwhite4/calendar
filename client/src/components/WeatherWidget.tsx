@@ -41,6 +41,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
 
   React.useEffect(() => {
     let ignore = false;
+    let lastUpdate = 0;
     
     async function fetchWeather() {
       setLoading(true);
@@ -74,6 +75,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
         }
         setHourly(chartData);
 
+        lastUpdate = new Date().getTime();
       } catch (err: any) {
         setError(err.message || 'Unknown error');
       } finally {
@@ -86,8 +88,11 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
     }
 
     const interval = setInterval(() => {
-      fetchWeather();
-    }, 30 * 60 * 1000);
+      const now = new Date().getTime();
+      if (Math.abs(now - lastUpdate) > 60 * 60 * 1000) {
+        fetchWeather();
+      }
+    }, 2 * 60 * 1000);
 
     return () => {
       clearInterval(interval);

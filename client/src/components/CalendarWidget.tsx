@@ -103,8 +103,17 @@ export default function CalendarWidget() {
   }
 
   useEffect(() => {
+    let lastUpdate = 0;
     fetchEvents();
-    const interval = setInterval(fetchEvents, 30 * 60 * 1000); // Refresh every half hour
+
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      if (Math.abs(now - lastUpdate) > 60 * 60 * 1000) {
+        fetchEvents();
+        lastUpdate = now;
+      }
+    }, 2 * 60 * 1000);
+
     return () => clearInterval(interval);
   }, []);
 
@@ -121,7 +130,6 @@ export default function CalendarWidget() {
     <Grid container spacing={2} columns={2} sx={{ mb: (theme) => theme.spacing(2) }}
     >
       <Grid size={{ lg: 1, xs: 1, md: 1 }}>
-        <Card >
           <Stack spacing={2} sx={{ width: '100%' }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ p: 2 }}>
               <Typography component="h2" variant="h6" sx={{ fontWeight: '600' }}>
@@ -130,7 +138,6 @@ export default function CalendarWidget() {
             </Stack>
             {today.map((event) => (
               <Card variant="outlined" key={event.id} sx={{ height: '100%' }}>
-                <Box sx={{ p: 1 }}>
                   <Stack
                     direction="row"
                     sx={{ justifyContent: 'space-between', alignItems: 'center' }}
@@ -142,19 +149,16 @@ export default function CalendarWidget() {
                       {event.start.toLocaleTimeString()}
                     </Typography>
                   </Stack>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                     {event.description}
                   </Typography>
-                </Box>
 
               </Card>
             ))}
           </Stack>
-        </Card>
 
       </Grid>
       <Grid size={{ lg: 1, xs: 1, md: 1 }}>
-        <Card >
           <Stack spacing={2} sx={{ width: '100%' }}>
             <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ p: 2 }}>
               <Typography component="h2" variant="h6" sx={{ fontWeight: '600' }}>
@@ -162,8 +166,7 @@ export default function CalendarWidget() {
               </Typography>
             </Stack>
             {tomorrow.map((event) => (
-              <Card variant="outlined" key={event.id} sx={{ height: '100%' }}>
-                <Box sx={{ p: 1 }}>
+              <Card key={event.id} sx={{ height: '100%' }}>
                   <Stack
                     direction="row"
                     sx={{ justifyContent: 'space-between', alignItems: 'center' }}
@@ -175,14 +178,12 @@ export default function CalendarWidget() {
                       {event.start.toLocaleTimeString()}
                     </Typography>
                   </Stack>
-                  <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  <Typography variant="body1" sx={{ color: 'text.secondary' }}>
                     {event.description}
                   </Typography>
-                </Box>
               </Card>
             ))}
           </Stack>
-        </Card>
       </Grid>
     </Grid>
 
