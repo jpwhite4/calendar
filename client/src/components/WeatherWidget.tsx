@@ -121,6 +121,14 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
       </Card>
     <Card variant="outlined" sx={{ height: '100%' }}>
       <CardContent>
+        <Typography
+          component="h2"
+          variant="h6"
+          gutterBottom
+          sx={{ fontWeight: '600' }}
+        >
+          Temperature
+        </Typography>
         <LineChart
           colors={colorPalette}
           series={[
@@ -129,7 +137,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           xAxis={[{ scaleType: 'point', data: hourly?.x }]}
           yAxis={[
             {
-              id: 'left', width: 50, label: 'Temp (°F)', colorMap: {
+              id: 'left', width: 50, label: '°F', colorMap: {
                 type: 'piecewise',
                 thresholds: [65, 75],
                 colors: ['blue', 'green', 'red'],
@@ -160,6 +168,14 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
 	</Card>
     <Card variant="outlined" sx={{ height: '100%' }}>
 	<CardContent>
+     <Typography
+          component="h2"
+          variant="h6"
+          gutterBottom
+          sx={{ fontWeight: '600' }}
+        >
+          Precipitation
+        </Typography>
         <LineChart
           colors={colorPalette}
           series={[
@@ -167,7 +183,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           ]}
           xAxis={[{ scaleType: 'point', data: hourly?.x }]}
           yAxis={[
-            { width: 50, min: 0, max: 100, label: 'Rain %' }
+            { width: 50, min: 0, max: 100, label: '%' }
           ]}
           height={250}
           hideLegend={true}

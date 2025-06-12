@@ -15,6 +15,7 @@ export const chartsCustomizations: ChartsComponents<Theme> = {
         [`& .${axisClasses.tickLabel}`]: {
           fill: gray[500],
           fontWeight: 500,
+          fontSize: '1rem !important',
         },
         ...theme.applyStyles('dark', {
           [`& .${axisClasses.line}`]: {
