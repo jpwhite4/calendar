@@ -33,6 +33,13 @@ export default function AppTheme(props: AppThemeProps) {
           shadows,
           shape,
           components: {
+            MuiCssBaseline: {
+              styleOverrides: {
+                body: {
+                  backgroundColor: '#31A7EB'
+                }
+              }
+            },
             ...inputsCustomizations,
             ...dataDisplayCustomizations,
             ...feedbackCustomizations,
