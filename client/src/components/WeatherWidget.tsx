@@ -42,7 +42,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
   React.useEffect(() => {
     let ignore = false;
     let lastUpdate = 0;
-    
+
     async function fetchWeather() {
       setLoading(true);
       setError(null);
@@ -53,15 +53,28 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
         const pointData = await pointRes.json();
         const forecastUrl = pointData.properties.forecast;
 
+        if (ignore) {
+          return
+        }
+
         // Step 2: Fetch the forecast
         const forecastRes = await fetch(forecastUrl);
+
+        if (ignore) {
+          return
+        }
+
         if (!forecastRes.ok) throw new Error('Failed to fetch forecast');
         const forecastData = await forecastRes.json();
         const period = forecastData.properties.periods[0];
-        setForecast(`${period.name}: ${period.detailedForecast}`);
 
         // Get the hourly data and serialise it
         const hourly = await fetch(pointData.properties.forecastHourly);
+
+        if (ignore) {
+          return
+        }
+
         if (!hourly.ok) throw new Error('Failed to fetch hourly forecast');
         const hourlyData = await hourly.json();
         let chartData = { 'x': [], 'temp': [], 'rain': [] };
@@ -73,13 +86,17 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           chartData.temp.push(p.temperature);
           chartData.rain.push(p.probabilityOfPrecipitation ? p.probabilityOfPrecipitation.value : 0);
         }
+
+        setForecast(`${period.name}: ${period.detailedForecast}`);
         setHourly(chartData);
 
         lastUpdate = new Date().getTime();
       } catch (err: any) {
         setError(err.message || 'Unknown error');
       } finally {
-        setLoading(false);
+        if (!ignore) {
+          setLoading(false);
+        }
       }
     }
 
@@ -92,7 +109,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
       if (Math.abs(now - lastUpdate) > 60 * 60 * 1000) {
         fetchWeather();
       }
-    }, 2 * 60 * 1000);
+    }, 10 * 1000);
 
     return () => {
       clearInterval(interval);
@@ -104,109 +121,109 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
   if (error) return <div>Error: {error}</div>;
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
-    <Card variant="outlined" sx={{ height: '100%' }}>
-      <CardContent>
-        <Typography
-          component="h2"
-          variant="h6"
-          gutterBottom
-          sx={{ fontWeight: '600' }}
-        >
-          Weather
-        </Typography>
-        <Typography sx={{ color: 'text.secondary', mb: '8px' }}>
-          {forecast}
-        </Typography>
-      </CardContent>
+      <Card variant="outlined" sx={{ height: '100%' }}>
+        <CardContent>
+          <Typography
+            component="h2"
+            variant="h6"
+            gutterBottom
+            sx={{ fontWeight: '600' }}
+          >
+            Weather
+          </Typography>
+          <Typography sx={{ color: 'text.secondary', mb: '8px' }}>
+            {forecast}
+          </Typography>
+        </CardContent>
       </Card>
-    <Card variant="outlined" sx={{ height: '100%' }}>
-      <CardContent>
-        <Typography
-          component="h2"
-          variant="h6"
-          gutterBottom
-          sx={{ fontWeight: '600' }}
-        >
-          Temperature
-        </Typography>
-        <LineChart
-          colors={colorPalette}
-          series={[
-            { data: hourly?.temp, id: 'referral', label: 'Temperature', yAxisId: 'left', showMark: false }
-          ]}
-          xAxis={[{ scaleType: 'point', data: hourly?.x }]}
-          yAxis={[
-            {
-              id: 'left', width: 50, label: '°F', colorMap: {
-                type: 'piecewise',
-                thresholds: [65, 75],
-                colors: ['blue', 'green', 'red'],
-              }, min: 32, max: 97
-            }
-          ]}
-          height={250}
-          hideLegend={true}
-          margin={{ left: 0, right: 20, top: 20, bottom: 0 }}
-          grid={{ horizontal: true }}
-          sx={{
-            '& .MuiAreaElement-series-organic': {
-              fill: "url('#organic')",
-            },
-            '& .MuiAreaElement-series-referral': {
-              fill: "url('#referral')",
-            },
-            '& .MuiAreaElement-series-direct': {
-              fill: "url('#direct')",
-            },
-          }}
-        >
-          <AreaGradient color={theme.palette.primary.dark} id="organic" />
-          <AreaGradient color={theme.palette.primary.main} id="referral" />
-          <AreaGradient color={theme.palette.primary.light} id="direct" />
-        </LineChart>
-	</CardContent>
-	</Card>
-    <Card variant="outlined" sx={{ height: '100%' }}>
-	<CardContent>
-     <Typography
-          component="h2"
-          variant="h6"
-          gutterBottom
-          sx={{ fontWeight: '600' }}
-        >
-          Precipitation
-        </Typography>
-        <LineChart
-          colors={colorPalette}
-          series={[
-            { data: hourly?.rain, area: true, label: 'Rain Prob', id: 'organic', showMark: false }
-          ]}
-          xAxis={[{ scaleType: 'point', data: hourly?.x }]}
-          yAxis={[
-            { width: 50, min: 0, max: 100, label: '%' }
-          ]}
-          height={250}
-          hideLegend={true}
-          margin={{ left: 0, right: 20, top: 20, bottom: 0 }}
-          grid={{ horizontal: true }}
-          sx={{
-            '& .MuiAreaElement-series-organic': {
-              fill: "url('#organic')",
-            },
-            '& .MuiAreaElement-series-referral': {
-              fill: "url('#referral')",
-            },
-            '& .MuiAreaElement-series-direct': {
-              fill: "url('#direct')",
-            },
-          }}
-        >
-          <AreaGradient color={theme.palette.primary.dark} id="organic" />
-          <AreaGradient color={theme.palette.primary.main} id="referral" />
-          <AreaGradient color={theme.palette.primary.light} id="direct" />
-        </LineChart>
-      </CardContent>
-    </Card>
+      <Card variant="outlined" sx={{ height: '100%' }}>
+        <CardContent>
+          <Typography
+            component="h2"
+            variant="h6"
+            gutterBottom
+            sx={{ fontWeight: '600' }}
+          >
+            Temperature
+          </Typography>
+          <LineChart
+            colors={colorPalette}
+            series={[
+              { data: hourly?.temp, id: 'referral', label: 'Temperature', yAxisId: 'left', showMark: false }
+            ]}
+            xAxis={[{ scaleType: 'point', data: hourly?.x }]}
+            yAxis={[
+              {
+                id: 'left', width: 50, label: '°F', colorMap: {
+                  type: 'piecewise',
+                  thresholds: [65, 75],
+                  colors: ['blue', 'green', 'red'],
+                }, min: 32, max: 97
+              }
+            ]}
+            height={250}
+            hideLegend={true}
+            margin={{ left: 0, right: 20, top: 20, bottom: 0 }}
+            grid={{ horizontal: true }}
+            sx={{
+              '& .MuiAreaElement-series-organic': {
+                fill: "url('#organic')",
+              },
+              '& .MuiAreaElement-series-referral': {
+                fill: "url('#referral')",
+              },
+              '& .MuiAreaElement-series-direct': {
+                fill: "url('#direct')",
+              },
+            }}
+          >
+            <AreaGradient color={theme.palette.primary.dark} id="organic" />
+            <AreaGradient color={theme.palette.primary.main} id="referral" />
+            <AreaGradient color={theme.palette.primary.light} id="direct" />
+          </LineChart>
+        </CardContent>
+      </Card>
+      <Card variant="outlined" sx={{ height: '100%' }}>
+        <CardContent>
+          <Typography
+            component="h2"
+            variant="h6"
+            gutterBottom
+            sx={{ fontWeight: '600' }}
+          >
+            Precipitation
+          </Typography>
+          <LineChart
+            colors={colorPalette}
+            series={[
+              { data: hourly?.rain, area: true, label: 'Rain Prob', id: 'organic', showMark: false }
+            ]}
+            xAxis={[{ scaleType: 'point', data: hourly?.x }]}
+            yAxis={[
+              { width: 50, min: 0, max: 100, label: '%' }
+            ]}
+            height={250}
+            hideLegend={true}
+            margin={{ left: 0, right: 20, top: 20, bottom: 0 }}
+            grid={{ horizontal: true }}
+            sx={{
+              '& .MuiAreaElement-series-organic': {
+                fill: "url('#organic')",
+              },
+              '& .MuiAreaElement-series-referral': {
+                fill: "url('#referral')",
+              },
+              '& .MuiAreaElement-series-direct': {
+                fill: "url('#direct')",
+              },
+            }}
+          >
+            <AreaGradient color={theme.palette.primary.dark} id="organic" />
+            <AreaGradient color={theme.palette.primary.main} id="referral" />
+            <AreaGradient color={theme.palette.primary.light} id="direct" />
+          </LineChart>
+        </CardContent>
+      </Card>
     </Stack>
   );
 }
