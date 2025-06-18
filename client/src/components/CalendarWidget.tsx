@@ -1,23 +1,19 @@
 // CalendarWidget.tsx
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
 
 interface EventItem {
   id: number;
   summary: string;
-  description: string;
+  description?: string;
+  location?: string;
   start: Date;
 }
 
 export default function CalendarWidget() {
-  const theme = useTheme();
-  const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
 
   const [error, setError] = useState<string | null>(null);
   const [displayDate, setDisplayDate] = useState<string>('');
@@ -62,7 +58,7 @@ export default function CalendarWidget() {
 
         let description = item.description || '';
         if (description.trim().length === 0) {
-          description = 'No description available';
+          description = null;
         }
 
         if (attending) {
@@ -71,6 +67,7 @@ export default function CalendarWidget() {
             pt.push({
               id: item.id,
               summary: item.summary,
+              location: item.location ? item.location.split("\n")[0] : null,
               description: description,
               start: new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00')
             });
@@ -80,6 +77,7 @@ export default function CalendarWidget() {
             ptom.push({
               id: item.id,
               summary: item.summary,
+              location: item.location ? item.location.split("\n")[0] : null,
               description: description,
               start: new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00')
             });
