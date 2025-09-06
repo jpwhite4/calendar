@@ -27,7 +27,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
           component="main"
           sx={(theme) => ({
             flexGrow: 1,
-            background: 'linear-gradient(#B5EEFF, #31A7EB)',
+            background: 'linear-gradient(#007294, #093b58)',
             overflow: 'auto',
           })}
         >

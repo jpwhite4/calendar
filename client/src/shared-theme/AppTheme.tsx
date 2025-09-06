@@ -36,7 +36,8 @@ export default function AppTheme(props: AppThemeProps) {
             MuiCssBaseline: {
               styleOverrides: {
                 body: {
-                  backgroundColor: '#31A7EB'
+                  color: 'white',
+                  backgroundColor: '#093b58'
                 }
               }
             },
