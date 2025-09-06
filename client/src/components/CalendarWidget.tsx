@@ -73,24 +73,28 @@ export default function CalendarWidget() {
           }
 
           if (attending) {
-            if (start.getTime() - istart.getTime() === 0) {
+            if (istart.getTime() - start.getTime() === 0) {
 
+              const estart =  new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00')
               pt.push({
                 id: item.id,
                 summary: item.summary,
                 location: item.location ? item.location.split("\n")[0] : null,
                 description: description,
-                start: new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00')
+                startDesc: item.allday ? '' : estart.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' }),
+                start: estart
               });
 
-            } else {
+            } else  if (istart.getTime() - start.getTime() === (24 * 3600 * 1000)) {
 
+              const estart = new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00');
               ptom.push({
                 id: item.id,
                 summary: item.summary,
                 location: item.location ? item.location.split("\n")[0] : null,
                 description: description,
-                start: new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00')
+                startDesc: item.allday ? '' : estart.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' }),
+                start: estart
               });
 
             }
@@ -162,7 +166,7 @@ export default function CalendarWidget() {
                   {event.summary}
                 </Typography>
                 <Typography gutterBottom variant="h6" component="div">
-                  {event.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' })}
+                  {event.startDesc}
                 </Typography>
               </Stack>
               {event.location &&
@@ -198,7 +202,7 @@ export default function CalendarWidget() {
                   {event.summary}
                 </Typography>
                 <Typography gutterBottom variant="h6" component="div">
-                  {event.start.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' })}
+                  {event.startDesc}
                 </Typography>
               </Stack>
               {event.location &&
