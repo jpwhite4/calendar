@@ -125,6 +125,7 @@ async function getSchoolEvents(start, end) {
                 id: start.toISOString() + '-' + ename.replace(' ', '-') + '-' + eventDate.replace(' ', '-'),
                 summary: ename,
                 description: mp[ename],
+                allday: true,
                 start: {
                     dateTime: eventDate
                 }
@@ -146,7 +147,7 @@ async function main() {
     const googleEvents = await listEvents(auth, start, end);
     const schoolEvents = await getSchoolEvents(start, end);
 
-    console.log(JSON.stringify(googleEvents.concat(schoolEvents), null, 4));
+    console.log(JSON.stringify(schoolEvents.concat(googleEvents), null, 4));
 }
 
 main();
