@@ -2,6 +2,16 @@ const fs = require('fs').promises;
 const path = require('path');
 const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
+const axios = require('axios');
+
+const mp = {
+    'Day 1': 'John: P.E.\nDorris: Music',
+    'Day 2': 'John: Art, Dorris: P.E. & Art',
+    'Day 3': 'John: P.E. & Orchestra, Dorris: Music',
+    'Day 4': 'John: Music & Orchestra, Dorris: P.E.',
+    'Day 5': 'John: P.E., Dorris: LMC',
+    'Day 6': 'John: LMC, Dorris: P.E.'
+};
 
 // If modifying these scopes, delete token.json.
 const SCOPES = ['https://www.googleapis.com/auth/calendar.readonly'];
@@ -69,12 +79,7 @@ async function authorize() {
  * Lists the next 10 events on the user's primary calendar.
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
-async function listEvents(auth) {
-
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(+start);
-    end.setDate(end.getDate() + 2);
+async function listEvents(auth, start, end) {
 
     const calendar = google.calendar({version: 'v3', auth});
     const res = await calendar.events.list({
@@ -88,11 +93,60 @@ async function listEvents(auth) {
     const events = res.data.items;
     if (!events || events.length === 0) {
         console.log('No upcoming events found.');
-        return;
+        return [];
     }
-    let out = JSON.stringify(events, null, 4);
-    console.log(out);
+
+    return events;
 }
 
-authorize().then(listEvents).catch(console.error);
+async function getSchoolEvents(start, end) {
 
+    const {data} = await axios.post(
+        'https://cas.hamburgschools.org/Common/controls/WorkspaceCalendar/ws/WorkspaceCalendarWS.asmx/Modern_Events',
+        {
+            "portletInstanceId":"425931",
+            "primaryCalendarId":"18925714",
+            "calendarIds":["18925714"],
+            "localFromDate": start.toISOString(),
+            "localToDate": end.toISOString(),
+            "filterFieldValue":"",
+            "searchText":"",
+            "categoryFieldValue":"",
+            "filterOptions":[]
+        }
+    );
+
+    let events = []
+    for (let i = 0; i < data.d.events.length; i++) {
+        const ename = data.d.events[i].name;
+        const eventDate = data.d.events[i].localStartDate;
+        if (mp[ename]) {
+            events.push({
+                id: start.toISOString() + '-' + ename.replace(' ', '-') + '-' + eventDate.replace(' ', '-'),
+                summary: ename,
+                description: mp[ename],
+                start: {
+                    dateTime: eventDate
+                }
+            });
+        }
+    }
+    
+    return events;
+}
+
+async function main() {
+
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date(+start);
+    end.setDate(end.getDate() + 2);
+
+    const auth = await authorize();
+    const googleEvents = await listEvents(auth, start, end);
+    const schoolEvents = await getSchoolEvents(start, end);
+
+    console.log(JSON.stringify(googleEvents.concat(schoolEvents), null, 4));
+}
+
+main();
