@@ -118,7 +118,7 @@ async function getSchoolEvents(start, end) {
 
     let events = []
     for (let i = 0; i < data.d.events.length; i++) {
-        const ename = data.d.events[i].name;
+        const ename = data.d.events[i].name.trim();
         const eventDate = data.d.events[i].localStartDate;
         if (mp[ename]) {
             events.push({
@@ -136,18 +136,12 @@ async function getSchoolEvents(start, end) {
     return events;
 }
 
-async function main() {
-
-    const start = new Date();
-    start.setHours(0, 0, 0, 0);
-    const end = new Date(+start);
-    end.setDate(end.getDate() + 2);
-
+async function main(start, end) {
     const auth = await authorize();
     const googleEvents = await listEvents(auth, start, end);
     const schoolEvents = await getSchoolEvents(start, end);
 
-    console.log(JSON.stringify(schoolEvents.concat(googleEvents), null, 4));
+    return schoolEvents.concat(googleEvents);
 }
 
-main();
+exports.fetchCalendar = main;
