@@ -110,10 +110,10 @@ export default function CalendarWidget() {
 
         setToday(pt);
         setTomorrow(ptom);
+        lastUpdate = new Date().getTime();
       } catch (err: any) {
         setError(err.details || err.message || 'An error occurred while fetching events');
       } finally {
-        lastUpdate = new Date().getTime();
         setLoading(false);
       }
     }
