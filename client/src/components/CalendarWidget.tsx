@@ -15,11 +15,38 @@ interface EventItem {
 
 export default function CalendarWidget() {
 
+  // Used for display of error and loading status
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
-  const [displayDate, setDisplayDate] = useState<string>('');
-  const [today, setToday] = useState<EventItem[]>([]);
-  const [tomorrow, setTomorrow] = useState<EventItem[]>([]);
+
+  // Calendar Event data
+  const [calEvents, setCalEvents] = useState<EventItem[][]>([[], []]);
+  const [displayDates, setDisplayDates] = useState<string[]>(['', '']);
+  const [dayOffset, setDayOffset] = useState(0);
+
+  // Used for tracking left and right swipes
+  const [dragX, setDragX] = useState(null)
+
+  const handleTouchStart = event => {
+    const startDragX = event.changedTouches[0].clientX
+    setDragX(startDragX);
+  }
+
+  const handleTouchEnd = event => {
+    const endDragX = event.changedTouches[0].clientX
+    const dragDelta = dragX - endDragX;
+    let newOffset = null;
+
+    if (dragDelta < -200) {
+      newOffset = Math.max(0, dayOffset - 1);
+    } else if (dragDelta > 200) {
+      newOffset = Math.min(5, dayOffset + 1);
+    }
+
+    if (newOffset !== null && newOffset != dayOffset) {
+      setDayOffset(newOffset);
+    }
+  }
 
   let lastUpdate = 0;
 
@@ -32,7 +59,7 @@ export default function CalendarWidget() {
       const start = new Date();
       start.setHours(0, 0, 0, 0);
       const end = new Date(+start);
-      end.setDate(end.getDate() + 2);
+      end.setDate(end.getDate() + 6);
 
       const url = `http://localhost:3000/?start=${start.toISOString()}&end=${end.toISOString()}`;
 
@@ -47,8 +74,14 @@ export default function CalendarWidget() {
         }
 
         const json = await response.json();
+        let allCal: EventItem[][] = [];
+        let calTimes: string[] = [];
         let pt: EventItem[] = [];
         let ptom: EventItem[] = [];
+
+        for (let i = 0; i < 7; i++) {
+            allCal.push([]);
+        }
 
         json.forEach((item: any) => {
 
@@ -73,30 +106,17 @@ export default function CalendarWidget() {
           }
 
           if (attending) {
-            if (istart.getTime() - start.getTime() === 0) {
-
-              const estart =  new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00')
-              pt.push({
+             const dt = Math.floor((istart.getTime() - start.getTime()) / (24 * 3600 * 1000));
+             if (dt >= 0 && dt < 7) {
+                const istart =  new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00')
+                allCal[dt].push({
                 id: item.id,
                 summary: item.summary,
                 location: item.location ? item.location.split("\n")[0] : null,
                 description: description,
-                startDesc: item.allday ? '' : estart.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' }),
-                start: estart
+                startDesc: item.allday ? '' : istart.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' }),
+                start: istart
               });
-
-            } else  if (istart.getTime() - start.getTime() === (24 * 3600 * 1000)) {
-
-              const estart = new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00');
-              ptom.push({
-                id: item.id,
-                summary: item.summary,
-                location: item.location ? item.location.split("\n")[0] : null,
-                description: description,
-                startDesc: item.allday ? '' : estart.toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' }),
-                start: estart
-              });
-
             }
           }
         })
@@ -106,10 +126,15 @@ export default function CalendarWidget() {
           month: "long",
           day: "numeric",
         };
-        setDisplayDate(start.toLocaleDateString('en-US', options));
 
-        setToday(pt);
-        setTomorrow(ptom);
+        calTimes.push("Today " + start.toLocaleDateString('en-US', options));
+        for (let i = 1; i < 7; i++) {
+            const ndt = new Date(+start);
+            ndt.setDate(ndt.getDate() + i);
+            calTimes.push(ndt.toLocaleDateString('en-US', options));
+        }
+        setDisplayDates(calTimes);
+        setCalEvents(allCal);
         lastUpdate = new Date().getTime();
       } catch (err: any) {
         setError(err.details || err.message || 'An error occurred while fetching events');
@@ -148,15 +173,17 @@ export default function CalendarWidget() {
 
   return (
     <Grid container spacing={2} columns={2} sx={{ mb: (theme) => theme.spacing(2) }}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
       <Grid size={{ lg: 1, xs: 1, md: 1 }}>
         <Stack spacing={2} sx={{ width: '100%' }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ p: 2 }}>
             <Typography component="h2" variant="h6" sx={{ fontWeight: '600' }}>
-              Today {displayDate}
+              {displayDates[dayOffset]}
             </Typography>
           </Stack>
-          {today.map((event) => (
+          {calEvents[dayOffset].map((event) => (
             <Card variant="outlined" key={event.id} sx={{ height: '100%' }}>
               <Stack
                 direction="row"
@@ -189,10 +216,10 @@ export default function CalendarWidget() {
         <Stack spacing={2} sx={{ width: '100%' }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ p: 2 }}>
             <Typography component="h2" variant="h6" sx={{ fontWeight: '600' }}>
-              Tomorrow
+              {displayDates[dayOffset + 1]}
             </Typography>
           </Stack>
-          {tomorrow.map((event) => (
+          {calEvents[dayOffset + 1].map((event) => (
             <Card key={event.id} sx={{ height: '100%' }}>
               <Stack
                 direction="row"
