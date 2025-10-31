@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import type { ThemeOptions } from '@mui/material/styles';
-import { inputsCustomizations } from './customizations/inputs';
+import { GlobalStyles } from '@mui/material';
 import { dataDisplayCustomizations } from './customizations/dataDisplay';
 import { feedbackCustomizations } from './customizations/feedback';
-import { navigationCustomizations } from './customizations/navigation';
 import { surfacesCustomizations } from './customizations/surfaces';
 import { colorSchemes, typography, shadows, shape } from './themePrimitives';
 
@@ -23,38 +22,49 @@ export default function AppTheme(props: AppThemeProps) {
     return disableCustomTheme
       ? {}
       : createTheme({
-          // For more details about CSS variables configuration, see https://mui.com/material-ui/customization/css-theme-variables/configuration/
-          cssVariables: {
-            colorSchemeSelector: 'data-mui-color-scheme',
-            cssVarPrefix: 'template',
-          },
-          colorSchemes, // Recently added in v6 for building light & dark mode app, see https://mui.com/material-ui/customization/palette/#color-schemes
-          typography,
-          shadows,
-          shape,
-          components: {
-            MuiCssBaseline: {
-              styleOverrides: {
-                body: {
-                  color: 'white',
-                  backgroundColor: '#093b58'
-                }
+        // For more details about CSS variables configuration, see https://mui.com/material-ui/customization/css-theme-variables/configuration/
+        cssVariables: {
+          colorSchemeSelector: 'data-mui-color-scheme',
+          cssVarPrefix: 'template',
+        },
+        colorSchemes, // Recently added in v6 for building light & dark mode app, see https://mui.com/material-ui/customization/palette/#color-schemes
+        typography,
+        shadows,
+        shape,
+        components: {
+          MuiCssBaseline: {
+            styleOverrides: {
+              body: {
+                color: 'white',
+                backgroundColor: '#093b58'
               }
-            },
-            ...inputsCustomizations,
-            ...dataDisplayCustomizations,
-            ...feedbackCustomizations,
-            ...navigationCustomizations,
-            ...surfacesCustomizations,
-            ...themeComponents,
+            }
           },
-        });
+          ...dataDisplayCustomizations,
+          ...feedbackCustomizations,
+          ...surfacesCustomizations,
+          ...themeComponents,
+        },
+      });
   }, [disableCustomTheme, themeComponents]);
+
+  const globalStyles = (
+    <GlobalStyles
+      styles={() => ({
+        '.loading': {
+          'background-color': 'grey',
+          opacity: 0.33
+        }
+      })}
+    />
+  );
+
   if (disableCustomTheme) {
     return <React.Fragment>{children}</React.Fragment>;
   }
   return (
     <ThemeProvider theme={theme} disableTransitionOnChange>
+      {globalStyles}
       {children}
     </ThemeProvider>
   );

@@ -4,6 +4,7 @@ import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import CircularProgress from '@mui/material/CircularProgress';
 import { LineChart } from '@mui/x-charts';
 import { useTheme } from '@mui/material/styles';
 
@@ -77,7 +78,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
 
         if (!hourly.ok) throw new Error('Failed to fetch hourly forecast');
         const hourlyData = await hourly.json();
-        let chartData = { 'x': [], 'temp': [], 'rain': [] };
+        const chartData = { 'x': [], 'temp': [], 'rain': [] };
 
         for (let i = 0; i < Math.min(12, hourlyData.properties.periods.length); i++) {
           const p = hourlyData.properties.periods[i];
@@ -91,8 +92,12 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
         setHourly(chartData);
 
         lastUpdate = new Date().getTime();
-      } catch (err: any) {
-        setError(err.message || 'Unknown error');
+      } catch (err: unknown) {
+        if (error instanceof Error) {
+          setError(err.message || 'Unknown error');
+        } else {
+          setError(err);
+        }
       } finally {
         if (!ignore) {
           setLoading(false);
@@ -117,10 +122,9 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
     };
   }, [lat, lon]);
 
-  if (loading) return <div>Loading weather…</div>;
   if (error) return <div>Error: {error}</div>;
   return (
-    <Stack spacing={2} sx={{ width: '100%' }}>
+    <Stack spacing={2} sx={{ width: '100%' }} className={loading ? 'loading' : ''}>
       <Card variant="outlined" sx={{ height: '100%' }}>
         <CardContent>
           <Typography
@@ -132,7 +136,10 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
             Weather
           </Typography>
           <Typography sx={{ color: 'text.secondary', mb: '8px' }}>
-            {forecast}
+            { forecast !== null ?  forecast :
+              <Stack alignItems="center">
+                <CircularProgress color="secondary" />
+              </Stack>  }
           </Typography>
         </CardContent>
       </Card>
@@ -146,41 +153,47 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           >
             Temperature
           </Typography>
-          <LineChart
-            colors={colorPalette}
-            series={[
-              { data: hourly?.temp, id: 'referral', label: 'Temperature', yAxisId: 'left', showMark: false }
-            ]}
-            xAxis={[{ scaleType: 'point', data: hourly?.x }]}
-            yAxis={[
-              {
-                id: 'left', width: 50, label: '°F', colorMap: {
-                  type: 'piecewise',
-                  thresholds: [65, 75],
-                  colors: ['blue', 'green', 'red'],
-                }, min: 32, max: 97
-              }
-            ]}
-            height={250}
-            hideLegend={true}
-            margin={{ left: 0, right: 20, top: 20, bottom: 0 }}
-            grid={{ horizontal: true }}
-            sx={{
-              '& .MuiAreaElement-series-organic': {
-                fill: "url('#organic')",
-              },
-              '& .MuiAreaElement-series-referral': {
-                fill: "url('#referral')",
-              },
-              '& .MuiAreaElement-series-direct': {
-                fill: "url('#direct')",
-              },
-            }}
-          >
-            <AreaGradient color={theme.palette.primary.dark} id="organic" />
-            <AreaGradient color={theme.palette.primary.main} id="referral" />
-            <AreaGradient color={theme.palette.primary.light} id="direct" />
-          </LineChart>
+          { hourly !== null ?
+            <LineChart
+              colors={colorPalette}
+              series={[
+                { data: hourly?.temp, id: 'referral', label: 'Temperature', yAxisId: 'left', showMark: false }
+              ]}
+              xAxis={[{ scaleType: 'point', data: hourly?.x }]}
+              yAxis={[
+                {
+                  id: 'left', width: 50, label: '°F', colorMap: {
+                    type: 'piecewise',
+                    thresholds: [65, 75],
+                    colors: ['blue', 'green', 'red'],
+                  }, min: 32, max: 97
+                }
+              ]}
+              height={250}
+              hideLegend={true}
+              margin={{ left: 0, right: 20, top: 20, bottom: 0 }}
+              grid={{ horizontal: true }}
+              sx={{
+                '& .MuiAreaElement-series-organic': {
+                  fill: "url('#organic')",
+                },
+                '& .MuiAreaElement-series-referral': {
+                  fill: "url('#referral')",
+                },
+                '& .MuiAreaElement-series-direct': {
+                  fill: "url('#direct')",
+                },
+              }}
+            >
+              <AreaGradient color={theme.palette.primary.dark} id="organic" />
+              <AreaGradient color={theme.palette.primary.main} id="referral" />
+              <AreaGradient color={theme.palette.primary.light} id="direct" />
+            </LineChart>
+            :
+            <Stack alignItems="center">
+              <CircularProgress color="secondary" />
+            </Stack>
+          }
         </CardContent>
       </Card>
       <Card variant="outlined" sx={{ height: '100%' }}>
@@ -193,35 +206,41 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           >
             Precipitation
           </Typography>
-          <LineChart
-            colors={colorPalette}
-            series={[
-              { data: hourly?.rain, area: true, label: 'Rain Prob', id: 'organic', showMark: false }
-            ]}
-            xAxis={[{ scaleType: 'point', data: hourly?.x }]}
-            yAxis={[
-              { width: 50, min: 0, max: 100, label: '%' }
-            ]}
-            height={250}
-            hideLegend={true}
-            margin={{ left: 0, right: 20, top: 20, bottom: 0 }}
-            grid={{ horizontal: true }}
-            sx={{
-              '& .MuiAreaElement-series-organic': {
-                fill: "url('#organic')",
-              },
-              '& .MuiAreaElement-series-referral': {
-                fill: "url('#referral')",
-              },
-              '& .MuiAreaElement-series-direct': {
-                fill: "url('#direct')",
-              },
-            }}
-          >
-            <AreaGradient color={theme.palette.primary.dark} id="organic" />
-            <AreaGradient color={theme.palette.primary.main} id="referral" />
-            <AreaGradient color={theme.palette.primary.light} id="direct" />
-          </LineChart>
+          { hourly !== null ?
+            <LineChart
+              colors={colorPalette}
+              series={[
+                { data: hourly?.rain, area: true, label: 'Rain Prob', id: 'organic', showMark: false }
+              ]}
+              xAxis={[{ scaleType: 'point', data: hourly?.x }]}
+              yAxis={[
+                { width: 50, min: 0, max: 100, label: '%' }
+              ]}
+              height={250}
+              hideLegend={true}
+              margin={{ left: 0, right: 20, top: 20, bottom: 0 }}
+              grid={{ horizontal: true }}
+              sx={{
+                '& .MuiAreaElement-series-organic': {
+                  fill: "url('#organic')",
+                },
+                '& .MuiAreaElement-series-referral': {
+                  fill: "url('#referral')",
+                },
+                '& .MuiAreaElement-series-direct': {
+                  fill: "url('#direct')",
+                },
+              }}
+            >
+              <AreaGradient color={theme.palette.primary.dark} id="organic" />
+              <AreaGradient color={theme.palette.primary.main} id="referral" />
+              <AreaGradient color={theme.palette.primary.light} id="direct" />
+            </LineChart>
+            :
+            <Stack alignItems="center">
+              <CircularProgress color="secondary" />
+            </Stack>
+          }
         </CardContent>
       </Card>
     </Stack>

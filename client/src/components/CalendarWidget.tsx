@@ -74,16 +74,14 @@ export default function CalendarWidget() {
         }
 
         const json = await response.json();
-        let allCal: EventItem[][] = [];
-        let calTimes: string[] = [];
-        let pt: EventItem[] = [];
-        let ptom: EventItem[] = [];
+        const allCal: EventItem[][] = [];
+        const calTimes: string[] = [];
 
         for (let i = 0; i < 7; i++) {
-            allCal.push([]);
+          allCal.push([]);
         }
 
-        json.forEach((item: any) => {
+        json.forEach((item: object) => {
 
           const istart = new Date(item.start.dateTime);
           istart.setHours(0, 0, 0, 0);
@@ -106,10 +104,10 @@ export default function CalendarWidget() {
           }
 
           if (attending) {
-             const dt = Math.floor((istart.getTime() - start.getTime()) / (24 * 3600 * 1000));
-             if (dt >= 0 && dt < 7) {
-                const istart =  new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00')
-                allCal[dt].push({
+            const dt = Math.floor((istart.getTime() - start.getTime()) / (24 * 3600 * 1000));
+            if (dt >= 0 && dt < 7) {
+              const istart =  new Date(item.start.dateTime || item.start.date + 'T00:00:00-04:00')
+              allCal[dt].push({
                 id: item.id,
                 summary: item.summary,
                 location: item.location ? item.location.split("\n")[0] : null,
@@ -129,14 +127,14 @@ export default function CalendarWidget() {
 
         calTimes.push("Today " + start.toLocaleDateString('en-US', options));
         for (let i = 1; i < 7; i++) {
-            const ndt = new Date(+start);
-            ndt.setDate(ndt.getDate() + i);
-            calTimes.push(ndt.toLocaleDateString('en-US', options));
+          const ndt = new Date(+start);
+          ndt.setDate(ndt.getDate() + i);
+          calTimes.push(ndt.toLocaleDateString('en-US', options));
         }
         setDisplayDates(calTimes);
         setCalEvents(allCal);
         lastUpdate = new Date().getTime();
-      } catch (err: any) {
+      } catch (err: unknown) {
         setError(err.details || err.message || 'An error occurred while fetching events');
       } finally {
         setLoading(false);

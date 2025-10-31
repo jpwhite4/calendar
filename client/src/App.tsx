@@ -1,6 +1,5 @@
 import * as React from 'react';
 import type { } from '@mui/x-charts/themeAugmentation';
-import { alpha } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
@@ -25,7 +24,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
         {/* Main content */}
         <Box
           component="main"
-          sx={(theme) => ({
+          sx={() => ({
             flexGrow: 1,
             background: 'linear-gradient(#007294, #093b58)',
             overflow: 'auto',
