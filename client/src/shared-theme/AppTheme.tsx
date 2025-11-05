@@ -52,8 +52,12 @@ export default function AppTheme(props: AppThemeProps) {
     <GlobalStyles
       styles={() => ({
         '.loading': {
-          'background-color': 'grey',
+          backgroundColor: 'grey',
           opacity: 0.33
+        },
+        '.errloading': {
+          backgroundColor: 'red',
+          opacity: 0.66
         }
       })}
     />

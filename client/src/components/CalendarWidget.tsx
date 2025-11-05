@@ -2,6 +2,8 @@
 import React, { useEffect, useState } from 'react';
 import Card from '@mui/material/Card';
 import Typography from '@mui/material/Typography';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Grid from '@mui/material/Grid';
 
@@ -49,11 +51,13 @@ export default function CalendarWidget() {
   }
 
   let lastUpdate = 0;
+  let inFetch = false;
 
   useEffect(() => {
     let ignore = false;
 
     async function fetchEvents() {
+      inFetch = true;
       setLoading(true);
       setError(null);
       const start = new Date();
@@ -134,10 +138,11 @@ export default function CalendarWidget() {
         setDisplayDates(calTimes);
         setCalEvents(allCal);
         lastUpdate = new Date().getTime();
+        setLoading(false);
       } catch (err: unknown) {
         setError(err.details || err.message || 'An error occurred while fetching events');
       } finally {
-        setLoading(false);
+        inFetch = false;
       }
     }
 
@@ -147,7 +152,7 @@ export default function CalendarWidget() {
 
     const interval = setInterval(() => {
       const now = new Date().getTime();
-      if (Math.abs(now - lastUpdate) > 60 * 60 * 1000) {
+      if (Math.abs(now - lastUpdate) > 60 * 60 * 1000 && !inFetch) {
         fetchEvents();
       }
     }, 10 * 1000);
@@ -158,15 +163,11 @@ export default function CalendarWidget() {
     };
   }, []);
 
-  if (loading) return <div>Loading calendar…</div>;
-
+  let loadMsg = "Loading Calendar"
+  let msgType = "info"
   if (error) {
-    return (
-      <div>
-        <h3>Error</h3>
-        <p>{error}</p>
-      </div>
-    );
+    msgType = "error"
+    loadMsg = `Error: ${error}`
   }
 
   return (
@@ -174,6 +175,17 @@ export default function CalendarWidget() {
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
+      <Snackbar
+        open={loading}
+        autoHideDuration='null'
+        key="Loading calendar" >
+        <Alert
+          severity={msgType}
+          sx={{ width: '100%' }} >
+          {loadMsg}
+        </Alert>
+      </Snackbar>
+
       <Grid size={{ lg: 1, xs: 1, md: 1 }}>
         <Stack spacing={2} sx={{ width: '100%' }}>
           <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ p: 2 }}>
@@ -245,6 +257,5 @@ export default function CalendarWidget() {
         </Stack>
       </Grid>
     </Grid>
-
   );
 }

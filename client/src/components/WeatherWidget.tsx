@@ -3,8 +3,9 @@ import * as React from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 import Typography from '@mui/material/Typography';
-import CircularProgress from '@mui/material/CircularProgress';
 import { LineChart } from '@mui/x-charts';
 import { useTheme } from '@mui/material/styles';
 
@@ -122,9 +123,27 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
     };
   }, [lat, lon]);
 
-  if (error) return <div>Error: {error}</div>;
+
+  let loadMsg = "Loading Weather"
+  let msgType = "info"
+  if (error) {
+    msgType = "error"
+    loadMsg = `Error: ${error}`
+  }
+
   return (
-    <Stack spacing={2} sx={{ width: '100%' }} className={loading ? 'loading' : ''}>
+    <Stack spacing={2} sx={{ width: '100%' }}>
+      <Snackbar
+        open={loading}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        autoHideDuration='null'
+        key="Loading weather" >
+        <Alert
+          severity={msgType}
+          sx={{ width: '100%' }} >
+          {loadMsg}
+        </Alert>
+      </Snackbar>
       <Card variant="outlined" sx={{ height: '100%' }}>
         <CardContent>
           <Typography
@@ -136,10 +155,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
             Weather
           </Typography>
           <Typography sx={{ color: 'text.secondary', mb: '8px' }}>
-            { forecast !== null ?  forecast :
-              <Stack alignItems="center">
-                <CircularProgress color="secondary" />
-              </Stack>  }
+            {forecast}
           </Typography>
         </CardContent>
       </Card>
@@ -153,7 +169,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           >
             Temperature
           </Typography>
-          { hourly !== null ?
+          { hourly !== null &&
             <LineChart
               colors={colorPalette}
               series={[
@@ -189,10 +205,6 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
               <AreaGradient color={theme.palette.primary.main} id="referral" />
               <AreaGradient color={theme.palette.primary.light} id="direct" />
             </LineChart>
-            :
-            <Stack alignItems="center">
-              <CircularProgress color="secondary" />
-            </Stack>
           }
         </CardContent>
       </Card>
@@ -206,7 +218,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           >
             Precipitation
           </Typography>
-          { hourly !== null ?
+          { hourly !== null &&
             <LineChart
               colors={colorPalette}
               series={[
@@ -236,10 +248,6 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
               <AreaGradient color={theme.palette.primary.main} id="referral" />
               <AreaGradient color={theme.palette.primary.light} id="direct" />
             </LineChart>
-            :
-            <Stack alignItems="center">
-              <CircularProgress color="secondary" />
-            </Stack>
           }
         </CardContent>
       </Card>
