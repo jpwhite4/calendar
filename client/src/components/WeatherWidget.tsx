@@ -5,6 +5,7 @@ import CardContent from '@mui/material/CardContent';
 import Stack from '@mui/material/Stack';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import Skeleton from '@mui/material/Skeleton';
 import Typography from '@mui/material/Typography';
 import { LineChart } from '@mui/x-charts';
 import { useTheme } from '@mui/material/styles';
@@ -154,9 +155,17 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           >
             Weather
           </Typography>
-          <Typography sx={{ color: 'text.secondary', mb: '8px' }}>
-            {forecast}
-          </Typography>
+          { forecast  ?
+            <Typography sx={{ color: 'text.secondary', mb: '8px' }}>
+              {forecast}
+            </Typography>
+            :
+            <Stack spacing={2}>
+              <Skeleton variant="rounded" />
+              <Skeleton variant="rounded" />
+              <Skeleton variant="rounded" />
+            </Stack>
+          }
         </CardContent>
       </Card>
       <Card variant="outlined" sx={{ height: '100%' }}>
@@ -169,7 +178,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           >
             Temperature
           </Typography>
-          { hourly !== null &&
+          { hourly !== null ?
             <LineChart
               colors={colorPalette}
               series={[
@@ -205,6 +214,8 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
               <AreaGradient color={theme.palette.primary.main} id="referral" />
               <AreaGradient color={theme.palette.primary.light} id="direct" />
             </LineChart>
+            :
+            <Skeleton height={250} />
           }
         </CardContent>
       </Card>
@@ -218,7 +229,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           >
             Precipitation
           </Typography>
-          { hourly !== null &&
+          { hourly !== null ?
             <LineChart
               colors={colorPalette}
               series={[
@@ -248,6 +259,8 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
               <AreaGradient color={theme.palette.primary.main} id="referral" />
               <AreaGradient color={theme.palette.primary.light} id="direct" />
             </LineChart>
+            :
+            <Skeleton height={250} />
           }
         </CardContent>
       </Card>
