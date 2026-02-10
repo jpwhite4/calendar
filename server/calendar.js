@@ -76,7 +76,7 @@ async function authorize() {
 }
 
 /**
- * Lists the next 10 events on the user's primary calendar.
+ * Lists the next 20 events on the user's primary calendar.
  * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
  */
 async function listEvents(auth, start, end) {
@@ -86,7 +86,7 @@ async function listEvents(auth, start, end) {
         calendarId: 'primary',
         timeMin: start.toISOString(),
         timeMax: end.toISOString(),
-        maxResults: 10,
+        maxResults: 20,
         singleEvents: true,
         orderBy: 'startTime',
     });
