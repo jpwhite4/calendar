@@ -35,6 +35,7 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
   const [forecast, setForecast] = React.useState<string | null>(null);
   interface HourlyChartData {
     x: string[];
+    mintemp: number;
     temp: number[];
     rain: number[];
   }
@@ -80,13 +81,16 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
 
         if (!hourly.ok) throw new Error('Failed to fetch hourly forecast');
         const hourlyData = await hourly.json();
-        const chartData = { 'x': [], 'temp': [], 'rain': [] };
+        const chartData = { 'x': [], 'temp': [], 'rain': [], 'mintemp': 32 };
 
         for (let i = 0; i < Math.min(12, hourlyData.properties.periods.length); i++) {
           const p = hourlyData.properties.periods[i];
 
           chartData.x.push(new Date(p.startTime));
           chartData.temp.push(p.temperature);
+          if (p.temperature < chartData.mintemp) {
+                chartData.mintemp = p.temperature;
+          }
           chartData.rain.push(p.probabilityOfPrecipitation ? p.probabilityOfPrecipitation.value : 0);
         }
 
@@ -134,17 +138,6 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
 
   return (
     <Stack spacing={2} sx={{ width: '100%' }}>
-      <Snackbar
-        open={loading}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        autoHideDuration='null'
-        key="Loading weather" >
-        <Alert
-          severity={msgType}
-          sx={{ width: '100%' }} >
-          {loadMsg}
-        </Alert>
-      </Snackbar>
       <Card variant="outlined" sx={{ height: '100%' }}>
         <CardContent>
           <Typography
@@ -189,9 +182,9 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
                 {
                   id: 'left', width: 50, label: '°F', colorMap: {
                     type: 'piecewise',
-                    thresholds: [65, 75],
-                    colors: ['blue', 'green', 'red'],
-                  }, min: 32, max: 97
+                    thresholds: [32, 65, 75],
+                    colors: ['cyan', 'blue', 'green', 'red'],
+                  }, min: hourly?.mintemp, max: hourly?.mintemp + (97 - 32)
                 }
               ]}
               height={250}
@@ -264,6 +257,17 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
           }
         </CardContent>
       </Card>
+      <Snackbar
+        open={loading}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        autoHideDuration='null'
+        key="Loading weather" >
+        <Alert
+          severity={msgType}
+          sx={{ width: '100%' }} >
+          {loadMsg}
+        </Alert>
+      </Snackbar>
     </Stack>
   );
 }
