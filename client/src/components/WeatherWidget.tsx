@@ -201,6 +201,9 @@ export default function WeatherWidget({ lat, lon }: WeatherWidgetProps) {
                 '& .MuiAreaElement-series-direct': {
                   fill: "url('#direct')",
                 },
+                '& .MuiLineElement-root': {
+                  strokeWidth: 4, // Set the desired thickness (e.g., 4px)
+                },
               }}
             >
               <AreaGradient color={theme.palette.primary.dark} id="organic" />
