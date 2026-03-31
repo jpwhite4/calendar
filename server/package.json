@@ -1,10 +1,12 @@
 {
   "dependencies": {
+    "@18f/us-federal-holidays": "^4.0.0",
     "@google-cloud/local-auth": "^2.1.0",
     "axios": "^1.11.0",
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "googleapis": "^105.0.0"
+    "googleapis": "^105.0.0",
+    "node-cache": "^5.1.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.35.0",

@@ -3,6 +3,7 @@ const path = require('path');
 const {authenticate} = require('@google-cloud/local-auth');
 const {google} = require('googleapis');
 const axios = require('axios');
+const bindays = require('./bindays');
 
 const mp = {
     'Day 1': 'John: P.E.\nDorris: Music',
@@ -140,8 +141,9 @@ async function main(start, end) {
     const auth = await authorize();
     const googleEvents = await listEvents(auth, start, end);
     const schoolEvents = await getSchoolEvents(start, end);
+    const binDays = bindays.getBinDays(start, end);
 
-    return schoolEvents.concat(googleEvents);
+    return schoolEvents.concat(googleEvents).concat(binDays);
 }
 
 exports.fetchCalendar = main;
