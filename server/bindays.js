@@ -19,12 +19,12 @@ function getBinDays(start, end) {
 
         if(d.getDay() == 2) {
 
-            let recycling = false;
+            let recycling = true;
             let eventTime = d;
 
             const weekOffset = Math.round((d - refStart) / (1000 * 3600 * 24)) / 7;
             if ((weekOffset % 2) == 0) {
-                recycling = true;
+                recycling = false;
             }
 
             const options = { shiftSaturdayHolidays: false, shiftSundayHolidays: true };
