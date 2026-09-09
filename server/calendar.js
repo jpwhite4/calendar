@@ -6,12 +6,12 @@ const axios = require('axios');
 const bindays = require('./bindays');
 
 const mp = {
-    'Day 1': 'John: P.E.\nDorris: Music',
-    'Day 2': 'John: Art, Dorris: P.E. & Art',
-    'Day 3': 'John: P.E. & Orchestra, Dorris: Music',
-    'Day 4': 'John: Music & Orchestra, Dorris: P.E.',
-    'Day 5': 'John: P.E., Dorris: LMC',
-    'Day 6': 'John: LMC, Dorris: P.E.'
+    'Day 1': 'Dorris: P.E',
+    'Day 2': 'Dorris: TBD',
+    'Day 3': 'Dorris: TBD',
+    'Day 4': 'Dorris: TBD',
+    'Day 5': 'Dorris: TBD',
+    'Day 6': 'Dorris: TBD'
 };
 
 // If modifying these scopes, delete token.json.
