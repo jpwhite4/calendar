@@ -9,9 +9,9 @@ const mp = {
     'Day 1': 'Dorris: P.E.',
     'Day 2': 'Dorris: Music',
     'Day 3': 'Dorris: Tuba Lesson & P.E.',
-    'Day 4': 'Dorris: Band',
-    'Day 5': 'Dorris: P.E.',
-    'Day 6': 'Dorris: TBD'
+    'Day 4': 'Dorris: Art & Band',
+    'Day 5': 'Dorris: Chorus & P.E.',
+    'Day 6': 'Dorris: LMC'
 };
 
 // If modifying these scopes, delete token.json.
