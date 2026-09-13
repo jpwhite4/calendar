@@ -6,11 +6,11 @@ const axios = require('axios');
 const bindays = require('./bindays');
 
 const mp = {
-    'Day 1': 'Dorris: P.E',
-    'Day 2': 'Dorris: TBD',
-    'Day 3': 'Dorris: TBD',
-    'Day 4': 'Dorris: TBD',
-    'Day 5': 'Dorris: TBD',
+    'Day 1': 'Dorris: P.E.',
+    'Day 2': 'Dorris: Music',
+    'Day 3': 'Dorris: Tuba Lesson & P.E.',
+    'Day 4': 'Dorris: Band',
+    'Day 5': 'Dorris: P.E.',
     'Day 6': 'Dorris: TBD'
 };
 
